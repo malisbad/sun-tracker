@@ -12,8 +12,8 @@ const int retardYOneDeg = 2;
 const int overridePin = 12;
 const int advX = 5;
 const int retX = 4;
-const int leftResPin = A5;
-const int rightResPin = A4;
+const int leftResPin = A4;
+const int rightResPin = A5;
 
 bool override = false;
 
@@ -45,8 +45,7 @@ void setup() {
   Serial.begin(9600);
   posX = servoX.read();
   posY = servoY.read();
-  printPosition(posX, posY);
-  moveToPositionXY(posX, servoX, posY, servoY);
+  moveToPositionXY(posX, servoX, posY, servoY); // should maintain starting position, but seems to be buggy
 
   leftResVal = analogRead(leftResPin);
   rightResVal = analogRead(rightResPin);
@@ -57,6 +56,7 @@ void loop() {
     leftResVal = analogRead(leftResPin);
     rightResVal = analogRead(rightResPin);
 
+    // photoresisitors return a range of values, this was done with trial and error
     if (leftResVal - rightResVal > 60) {
       moveToPositionXY(posX + 1, servoX, posY, servoY);
     }
@@ -64,7 +64,6 @@ void loop() {
       moveToPositionXY(posX - 1, servoX, posY, servoY);
     }
 
-    printPosition(posX, posY);
     posX = servoX.read();
     posY = servoY.read();
 }
@@ -84,7 +83,7 @@ void moveToPosition(int currentPos, int newPos, Servo servo) {
       servo.write(currentPos);              // tell servo to go to position
       delay(15);                       // waits 15ms for the servo to reach the position
     }
-  } else if (currentPos >= newPos) {
+  } else if (currentPos > newPos) {
     for (currentPos; currentPos >= newPos; currentPos -= 1) { // goes from 180 degrees to 0 degrees
       servo.write(currentPos);              // tell servo to go to position in variable 'pos'
       delay(15);                       // waits 15ms for the servo to reach the position
