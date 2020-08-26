@@ -1,9 +1,19 @@
 // Y servo maximum range 32 -> 151
 
 #include <Servo.h>
+#include <SPI.h>
+#include <SD.h>
 
+// init servos
 Servo servoX;
 Servo servoY;
+
+//init SD card
+Sd2Card card;
+SdVolume volume;
+SdFile root;
+
+const int chipSelect = 10;
 
 const int servoXPin = 9;
 const int servoYPin = 8;
@@ -30,6 +40,10 @@ int lightDiff = 0;
 int movingLightDiff = 0;
 
 void setup() {
+  Serial.begin(9600);
+  while (!Serial) {
+    ; // wait for serial port to connect. Needed for native USB port only
+  }
   // put your setup code here, to run once:
   servoX.attach(9);
   servoY.attach(10);
@@ -42,7 +56,6 @@ void setup() {
   pinMode(rightResPin, INPUT);
   pinMode(overridePin, INPUT);
 
-  Serial.begin(9600);
   posX = servoX.read();
   posY = servoY.read();
   moveToPositionXY(posX, servoX, posY, servoY); // should maintain starting position, but seems to be buggy
