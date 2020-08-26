@@ -13,6 +13,8 @@ Sd2Card card;
 SdVolume volume;
 SdFile root;
 
+File data;
+
 const int chipSelect = 10;
 
 const int servoXPin = 9;
@@ -35,6 +37,7 @@ const int minY = 35;
 const int maxY = 151;
 int leftResVal = 0;
 int rightResVal = 0;
+int blendedValue = 0;
 
 int lightDiff = 0;
 int movingLightDiff = 0;
@@ -45,9 +48,10 @@ void setup() {
     ; // wait for serial port to connect. Needed for native USB port only
   }
   // put your setup code here, to run once:
-  servoX.attach(9);
-  servoY.attach(10);
+  servoX.attach(servoXPin);
+  servoY.attach(servoYPin);
 
+  pinMode(chipSelect, OUTPUT);
   pinMode(advanceYOneDeg, INPUT);
   pinMode(retardYOneDeg, INPUT);
   pinMode(advX, INPUT);
@@ -55,6 +59,10 @@ void setup() {
   pinMode(leftResPin, INPUT);
   pinMode(rightResPin, INPUT);
   pinMode(overridePin, INPUT);
+
+  if (!SD.begin(10)) {
+    Serial.println("Initialization failed");
+  }
 
   posX = servoX.read();
   posY = servoY.read();
@@ -79,6 +87,15 @@ void loop() {
 
     posX = servoX.read();
     posY = servoY.read();
+
+    blendedValue =(leftResVal + rightResVal)/2;
+    data = SD.open("data.txt", FILE_WRITE);
+    if (data) {
+      data.println(blendedValue);
+      data.close();
+    } else {
+      Serial.println("Error opening file");
+    }
 }
 
 void moveToPositionXY(int newPosX, Servo servX, int newPosY, Servo servY) {
