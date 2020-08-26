@@ -6,7 +6,7 @@ Servo servoX;
 Servo servoY;
 
 const int servoXPin = 9;
-const int servoYPin = 10;
+const int servoYPin = 8;
 const int advanceYOneDeg = 3;
 const int retardYOneDeg = 2;
 const int overridePin = 12;
@@ -54,26 +54,6 @@ void setup() {
 }
 
 void loop() {
-  if (digitalRead(overridePin) == HIGH) {
-    override = !override;
-  }
-
-  if (override) {
-    // manual debugging controls
-    Serial.println("Override active");
-    if (digitalRead(advanceYOneDeg) == HIGH && posY <= 152) {
-      moveToPosition(posY, posY + 1, servoY);
-    }
-    if (digitalRead(retardYOneDeg) == HIGH && posY >= 35) {
-      moveToPosition(posY, posY - 1, servoY);
-    }
-    if (digitalRead(advX) == HIGH && posX <= 270) {
-      moveToPosition(posX, posX + 1, servoX);
-    }
-    if (digitalRead(retX) == HIGH && posX >= 0) {
-      moveToPosition(posX, posX - 1, servoX);
-    }
-  } else {
     leftResVal = analogRead(leftResPin);
     rightResVal = analogRead(rightResPin);
 
@@ -87,7 +67,6 @@ void loop() {
     printPosition(posX, posY);
     posX = servoX.read();
     posY = servoY.read();
-  }
 }
 
 void moveToPositionXY(int newPosX, Servo servX, int newPosY, Servo servY) {
