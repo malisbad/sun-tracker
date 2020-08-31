@@ -19,13 +19,10 @@ const int chipSelect = 10;
 
 const int servoXPin = 9;
 const int servoYPin = 8;
-const int advanceYOneDeg = 3;
-const int retardYOneDeg = 2;
-const int overridePin = 12;
-const int advX = 5;
-const int retX = 4;
-const int leftResPin = A4;
-const int rightResPin = A5;
+const int lowerLeftResPin = A4;
+const int lowerRightResPin = A5;
+const int upperRightResPin = A2;
+const int upperLeftResPin = A1;
 
 bool override = false;
 
@@ -35,12 +32,12 @@ const int minX = 0;
 const int maxX = 180;
 const int minY = 35;
 const int maxY = 151;
-int leftResVal = 0;
-int rightResVal = 0;
+int lowerLeftResVal = 0;
+int lowerRightResVal = 0;
+int upperRightResVal = 0;
+int upperLeftResVal = 0;
 int blendedValue = 0;
-
-int lightDiff = 0;
-int movingLightDiff = 0;
+int diffTolerance = 60; // photoresisitors return a range of values, this was done with trial and error
 
 void setup() {
   Serial.begin(9600);
@@ -52,13 +49,10 @@ void setup() {
   servoY.attach(servoYPin);
 
   pinMode(chipSelect, OUTPUT);
-  pinMode(advanceYOneDeg, INPUT);
-  pinMode(retardYOneDeg, INPUT);
-  pinMode(advX, INPUT);
-  pinMode(retX, INPUT);
-  pinMode(leftResPin, INPUT);
-  pinMode(rightResPin, INPUT);
-  pinMode(overridePin, INPUT);
+  pinMode(lowerLeftResPin, INPUT);
+  pinMode(lowerRightResPin, INPUT);
+  pinMode(upperRightResPin, INPUT);
+  pinMode(upperLeftResPin, INPUT);
 
   if (!SD.begin(10)) {
     Serial.println("Initialization failed");
@@ -67,17 +61,16 @@ void setup() {
   posX = servoX.read();
   posY = servoY.read();
   moveToPositionXY(posX, servoX, posY, servoY); // should maintain starting position, but seems to be buggy
-
-  leftResVal = analogRead(leftResPin);
-  rightResVal = analogRead(rightResPin);
-  lightDiff = leftResVal - rightResVal;
 }
 
 void loop() {
-    leftResVal = analogRead(leftResPin);
-    rightResVal = analogRead(rightResPin);
+    lowerLeftResVal = analogRead(leftResPin);
+    upperLeftResVal = analogRead(upperLeftResPin);
+    lowerRightResVal = analogRead(rightResPin);
+    upperRightResVal = analogRead(upperRightResPin);
 
-    // photoresisitors return a range of values, this was done with trial and error
+    leftRes
+
     if (leftResVal - rightResVal > 60) {
       moveToPositionXY(posX + 1, servoX, posY, servoY);
     }
