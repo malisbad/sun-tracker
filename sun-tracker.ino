@@ -36,6 +36,10 @@ int lowerLeftResVal = 0;
 int lowerRightResVal = 0;
 int upperRightResVal = 0;
 int upperLeftResVal = 0;
+int upperRes = 0;
+int lowerRes = 0;
+int rightRes = 0;
+int leftRes = 0;
 int blendedValue = 0;
 int diffTolerance = 60; // photoresisitors return a range of values, this was done with trial and error
 
@@ -69,19 +73,29 @@ void loop() {
     lowerRightResVal = analogRead(rightResPin);
     upperRightResVal = analogRead(upperRightResPin);
 
-    leftRes
+    leftRes = (upperLeftResVal - lowerLeftResVal)/2;
+    rightRes = (upperRightResVal - lowerRightResVal)/2;
+    upperRes = (upperLeftResVal - upperRightResVal)/2;
+    lowerRes = (lowerLeftResVal - lowerRightResVal)/2;
 
-    if (leftResVal - rightResVal > 60) {
+    if (leftRes - rightRes > 60) {
       moveToPositionXY(posX + 1, servoX, posY, servoY);
     }
-    if (leftResVal - rightResVal < -60) {
+    if (leftRes - rightRes < -60) {
       moveToPositionXY(posX - 1, servoX, posY, servoY);
+    }
+    if (upperRes - lowerRes > 60 {
+      moveToPositionXY(posX, servoX, posY + 1, servoY);
+    }
+    if (upperRes - lowerRes < -60) {
+      moveToPositionXY(posX, servoX, posY - 1, servoY);
     }
 
     posX = servoX.read();
     posY = servoY.read();
 
-    blendedValue =(leftResVal + rightResVal)/2;
+    // initial finding phase will have this go all over
+    blendedValue =(upperRes + lowerRes)/2;
     data = SD.open("data.txt", FILE_WRITE);
     if (data) {
       data.println(blendedValue);
