@@ -41,7 +41,10 @@ int lowerRes = 0;
 int rightRes = 0;
 int leftRes = 0;
 int blendedValue = 0;
-int diffTolerance = 60; // photoresisitors return a range of values, this was done with trial and error
+int diffTolerance = 40; // photoresisitors return a range of values, this was done with trial and error
+
+int moveX = 0;
+int moveY = 0;
 
 void setup() {
   Serial.begin(9600);
@@ -68,9 +71,9 @@ void setup() {
 }
 
 void loop() {
-    lowerLeftResVal = analogRead(leftResPin);
+    lowerLeftResVal = analogRead(lowerLeftResPin);
     upperLeftResVal = analogRead(upperLeftResPin);
-    lowerRightResVal = analogRead(rightResPin);
+    lowerRightResVal = analogRead(lowerRightResPin);
     upperRightResVal = analogRead(upperRightResPin);
 
     leftRes = (upperLeftResVal - lowerLeftResVal)/2;
@@ -78,21 +81,40 @@ void loop() {
     upperRes = (upperLeftResVal - upperRightResVal)/2;
     lowerRes = (lowerLeftResVal - lowerRightResVal)/2;
 
-    if (leftRes - rightRes > 60) {
-      moveToPositionXY(posX + 1, servoX, posY, servoY);
+    moveX = 0;
+    moveY = 0;
+
+    Serial.print("Left res:");
+    Serial.print(leftRes);
+    Serial.print(", ");
+    Serial.print("Right res:");
+    Serial.print(rightRes);
+    Serial.print(", ");
+    Serial.print("Upper res:");
+    Serial.print(upperRes);
+    Serial.print(", ");
+    Serial.print("Lower res:");
+    Serial.print(lowerRes);
+    Serial.println(", ");
+    
+
+    if (leftRes - rightRes > diffTolerance) {
+      moveX = 1;
     }
-    if (leftRes - rightRes < -60) {
-      moveToPositionXY(posX - 1, servoX, posY, servoY);
+    if (leftRes - rightRes < -diffTolerance) {
+      moveX = -1;
     }
-    if (upperRes - lowerRes > 60 {
-      moveToPositionXY(posX, servoX, posY + 1, servoY);
+    if (upperRes - lowerRes > diffTolerance) {
+      moveY = -1;
     }
-    if (upperRes - lowerRes < -60) {
-      moveToPositionXY(posX, servoX, posY - 1, servoY);
+    if (upperRes - lowerRes < -diffTolerance) {
+      moveY = 1;
     }
 
     posX = servoX.read();
     posY = servoY.read();
+
+    moveToPositionXY(posX + moveX, servoX, posY + moveY, servoY);
 
     // initial finding phase will have this go all over
     blendedValue =(upperRes + lowerRes)/2;
@@ -112,6 +134,7 @@ void moveToPositionXY(int newPosX, Servo servX, int newPosY, Servo servY) {
   if (posY < maxY && posY > minY) {
     moveToPosition(servoY.read(), newPosY, servY);
   }
+
 }
 
 void moveToPosition(int currentPos, int newPos, Servo servo) {
