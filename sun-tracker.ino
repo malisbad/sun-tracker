@@ -24,7 +24,7 @@ const int lowerRightResPin = A5;
 const int upperRightResPin = A2;
 const int upperLeftResPin = A1;
 
-bool override = false;
+bool debug = true;
 
 int posX = 0;
 int posY = 0;
@@ -76,39 +76,40 @@ void loop() {
     lowerRightResVal = analogRead(lowerRightResPin);
     upperRightResVal = analogRead(upperRightResPin);
 
-    leftRes = (upperLeftResVal - lowerLeftResVal)/2;
-    rightRes = (upperRightResVal - lowerRightResVal)/2;
-    upperRes = (upperLeftResVal - upperRightResVal)/2;
-    lowerRes = (lowerLeftResVal - lowerRightResVal)/2;
+    leftRes = (upperLeftResVal + lowerLeftResVal)/2;
+    rightRes = (upperRightResVal + lowerRightResVal)/2;
+    upperRes = (upperLeftResVal + upperRightResVal)/2;
+    lowerRes = (lowerLeftResVal + lowerRightResVal)/2;
 
     moveX = 0;
     moveY = 0;
 
-    Serial.print("Left res:");
-    Serial.print(leftRes);
-    Serial.print(", ");
-    Serial.print("Right res:");
-    Serial.print(rightRes);
-    Serial.print(", ");
-    Serial.print("Upper res:");
-    Serial.print(upperRes);
-    Serial.print(", ");
-    Serial.print("Lower res:");
-    Serial.print(lowerRes);
-    Serial.println(", ");
-    
-
-    if (leftRes - rightRes > diffTolerance) {
-      moveX = 1;
+    if (debug == true) {
+      Serial.print("Left res:");
+      Serial.print(leftRes);
+      Serial.print(", ");
+      Serial.print("Right res:");
+      Serial.print(rightRes);
+      Serial.print(", ");
+      Serial.print("Upper res:");
+      Serial.print(upperRes);
+      Serial.print(", ");
+      Serial.print("Lower res:");
+      Serial.print(lowerRes);
+      Serial.println(", ");
     }
-    if (leftRes - rightRes < -diffTolerance) {
+    
+    if (leftRes - rightRes > diffTolerance) {
       moveX = -1;
     }
+    if (leftRes - rightRes < -diffTolerance) {
+      moveX = 1;
+    }
     if (upperRes - lowerRes > diffTolerance) {
-      moveY = -1;
+      moveY = 1;
     }
     if (upperRes - lowerRes < -diffTolerance) {
-      moveY = 1;
+      moveY = -1;
     }
 
     posX = servoX.read();
@@ -125,6 +126,8 @@ void loop() {
     } else {
       Serial.println("Error opening file");
     }
+
+    delay(15);
 }
 
 void moveToPositionXY(int newPosX, Servo servX, int newPosY, Servo servY) {
@@ -134,7 +137,6 @@ void moveToPositionXY(int newPosX, Servo servX, int newPosY, Servo servY) {
   if (posY < maxY && posY > minY) {
     moveToPosition(servoY.read(), newPosY, servY);
   }
-
 }
 
 void moveToPosition(int currentPos, int newPos, Servo servo) {
